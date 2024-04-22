@@ -83,7 +83,7 @@ republican_won_ensemble = []
 # Running the Markov Chain
 for part in our_random_walk:
     # Add cutedges to cutedges ensemble
-    cutedge_ensemble.append(len(part["cut edges"]))
+    cutedge_ensemble.append(len(part["cut_edges"]))
     
     republican_won_ensemble.append(part["republican_won"])
 
