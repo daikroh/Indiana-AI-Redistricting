@@ -118,7 +118,7 @@ our_random_walk = MarkovChain(
     constraints = [population_constraint],
     accept = always_accept, # Accept every proposed plan that meets the population constraints
     initial_state = initial_partition, 
-    total_steps = 8000) 
+    total_steps = 5000) 
 
 # Lists to store data for histograms
 cutedge_ensemble = []
@@ -138,25 +138,35 @@ for part in our_random_walk:
     mean_median_difference_ensemble.append(part["mean_median_difference"])
 
 plt.figure()
-plt.hist(cutedge_ensemble, align = 'left')
+plt.hist(cutedge_ensemble, align = 'mid')
 plt.title("Histogram of Cut Edges")
+plt.xlabel("Number of Cut Edges")
+plt.ylabel("Frequency of Districting Plans")
 plt.show()
 #plt.savefig('histogram_cut_edges.png')
 
 plt.figure()
-plt.hist(republican_won_ensemble, align = 'left')
+bins = 9
+plt.hist(republican_won_ensemble, bins=bins, align='mid')
+plt.xticks(np.arange(min(republican_won_ensemble), max(republican_won_ensemble) + 1, 1))  # Set x-axis ticks to whole numbers
 plt.title("Histogram of Republican-won districts")
+plt.xlabel("Number of Republican-Won Districts")
+plt.ylabel("Frequency of Districting Plans")
 plt.show()
 #plt.savefig('histogram_republican_won.png')
 
 plt.figure()
-plt.hist(efficiency_gap_ensemble, align = 'left')
+plt.hist(efficiency_gap_ensemble, align = 'mid')
 plt.title("Histogram of Efficiency Gap")
+plt.xlabel("Efficiency Gap")
+plt.ylabel("Frequency of Districting Plans")
 plt.show()
 #plt.savefig('histogram_efficiency_gap.png')
 
 plt.figure()
-plt.hist(mean_median_difference_ensemble, align = 'left')
+plt.hist(mean_median_difference_ensemble, align = 'mid')
 plt.title("Histogram of Mean Median Difference")
+plt.xlabel("Mean-Median Difference")
+plt.ylabel("Frequency of Districting Plans")
 plt.show()
 #plt.savefig('histogram_mean_median.png')
