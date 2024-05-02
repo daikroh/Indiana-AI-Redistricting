@@ -26,6 +26,7 @@ total_steps_in_run=500
 save_district_graph_mod=1
 save_district_plot_mod=100
 
+# Reading in the shapefile
 outdir="./IN_recom_2020_CD/"
 os.makedirs(outdir, exist_ok=True)
 gdf = gpd.read_file('./IN/IN.shp')
@@ -34,6 +35,7 @@ gdf = gdf.fillna(value={'ALL_TOT20': 0})
 gdf = gdf.fillna(value={'VAP_TOT20': 0})
 graph = Graph.from_geodataframe(gdf)
 
+# Setting up the election updaters
 elections = [
     Election("PRES20", {"Republican": "PRES20R", "Democratic": "PRES20D"}),
 ]
@@ -42,6 +44,7 @@ my_updaters = {"population": updaters.Tally("ALL_TOT20", alias="population")}
 election_updaters = {election.name: election for election in elections}
 my_updaters.update(election_updaters)
 
+# Setting up the Partition
 initial_partition = GeographicPartition(graph, 
                                         assignment= "CD", updaters=my_updaters)
 
@@ -53,12 +56,15 @@ proposal = partial(recom,
                    epsilon=0.02,
                    node_repeats=2
                   )
+# Constraints
 compactness_bound = constraints.UpperBound(
     lambda p: len(p["cut_edges"]),
     2*len(initial_partition["cut_edges"])
 )
+
 pop_constraint = constraints.within_percent_of_ideal_population(initial_partition, 0.02)
 
+# Running a Markov Chain
 chain = MarkovChain(
     proposal=proposal,
     constraints=[
@@ -70,6 +76,7 @@ chain = MarkovChain(
     total_steps=total_steps_in_run
     )
 
+# Creating the Box Plot
 data = pd.DataFrame(
     sorted(partition["PRES20"].percents("Republican"))
     for partition in chain.with_progress_bar()
@@ -83,18 +90,18 @@ ax.axhline(0.5, color="#cccccc")
 # Draw boxplot
 data.boxplot(ax=ax, positions=range(len(data.columns)))
 
-# Draw initial plan's Democratic vote %s (.iloc[0] gives the first row, which corresponds to the initial plan)
+# Draw initial plan's Republican vote %s (.iloc[0] gives the first row, which corresponds to the initial plan)
 plt.plot(data.iloc[0], "ro")
 
-# Annotate
+# Annotate plot
 ax.set_title("Comparing the 2020 plan to an ensemble")
 ax.set_ylabel("Republican vote % (Presidnetial 2020)")
 ax.set_xlabel("Sorted districts")
-ax.set_ylim(0, 1)
-ax.set_yticks([0, 0.25, 0.5, 0.75, 1])
+ax.set_ylim(0.25, 0.75)
+ax.set_yticks([0.25, 0.5, 0.75])
 
 plt.show()
-
+plt.savefig('marginal_box_plot20.png')
 
 
 
