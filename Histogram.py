@@ -18,7 +18,7 @@ from functools import partial
 import geopandas as gpd
 import pandas as pd
 
-
+# Reading in the shapefile for Indiana
 gdf = gpd.read_file('./IN/IN.shp')
 
 gdf = gdf.fillna(value={'ALL_TOT20': 0})
@@ -83,6 +83,7 @@ def efficiency_gap(partition):
     return efficiency_gap_value
 
 
+# Setting up the Partition
 initial_partition = Partition(
       graph, 
       assignment="CD",
@@ -107,6 +108,7 @@ rw_proposal = partial(recom, ## how you choose a next districting plan
                       node_repeats = 1 ## number of times to repeat bipartition.  Can increase if you get a BipartitionWarning
                       )
 
+# Defining the constraints, ensuring equal population
 population_constraint = constraints.within_percent_of_ideal_population(
     initial_partition, 
     pop_tolerance, 
@@ -118,7 +120,7 @@ our_random_walk = MarkovChain(
     constraints = [population_constraint],
     accept = always_accept, # Accept every proposed plan that meets the population constraints
     initial_state = initial_partition, 
-    total_steps = 5000) 
+    total_steps = 20000) 
 
 # Lists to store data for histograms
 cutedge_ensemble = []
@@ -128,7 +130,6 @@ mean_median_difference_ensemble = []
 
 # Running the Markov Chain
 for part in our_random_walk:
-    # Add cutedges to cutedges ensemble
     cutedge_ensemble.append(len(part["cut_edges"]))
     
     republican_won_ensemble.append(part["republican_won"])
@@ -137,23 +138,24 @@ for part in our_random_walk:
     
     mean_median_difference_ensemble.append(part["mean_median_difference"])
 
+# Plotting the histograms for cut edges, republican wins, efficiency gap, and mean median difference
 plt.figure()
 plt.hist(cutedge_ensemble, align = 'mid')
 plt.title("Histogram of Cut Edges")
 plt.xlabel("Number of Cut Edges")
 plt.ylabel("Frequency of Districting Plans")
 plt.show()
-#plt.savefig('histogram_cut_edges.png')
+plt.savefig('histogram_cut_edges20.png')
 
 plt.figure()
-bins = 9
+bins = np.arange(min(republican_won_ensemble), max(republican_won_ensemble) + 2) - 0.5
 plt.hist(republican_won_ensemble, bins=bins, align='mid')
 plt.xticks(np.arange(min(republican_won_ensemble), max(republican_won_ensemble) + 1, 1))  # Set x-axis ticks to whole numbers
-plt.title("Histogram of Republican-won districts")
+plt.title("Histogram of Republican-Won districts")
 plt.xlabel("Number of Republican-Won Districts")
 plt.ylabel("Frequency of Districting Plans")
 plt.show()
-#plt.savefig('histogram_republican_won.png')
+plt.savefig('histogram_republican_won20.png')
 
 plt.figure()
 plt.hist(efficiency_gap_ensemble, align = 'mid')
@@ -161,7 +163,7 @@ plt.title("Histogram of Efficiency Gap")
 plt.xlabel("Efficiency Gap")
 plt.ylabel("Frequency of Districting Plans")
 plt.show()
-#plt.savefig('histogram_efficiency_gap.png')
+plt.savefig('histogram_efficiency_gap20.png')
 
 plt.figure()
 plt.hist(mean_median_difference_ensemble, align = 'mid')
@@ -169,4 +171,4 @@ plt.title("Histogram of Mean Median Difference")
 plt.xlabel("Mean-Median Difference")
 plt.ylabel("Frequency of Districting Plans")
 plt.show()
-#plt.savefig('histogram_mean_median.png')
+plt.savefig('histogram_mean_median20.png')
