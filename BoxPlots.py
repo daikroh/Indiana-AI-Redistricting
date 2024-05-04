@@ -90,7 +90,7 @@ ax.axhline(0.5, color="#cccccc")
 # Draw boxplot
 data.boxplot(ax=ax, positions=range(len(data.columns)))
 
-# Draw initial plan's Republican vote %s (.iloc[0] gives the first row, which corresponds to the initial plan)
+# Draw initial plan's Democratic vote %s (.iloc[0] gives the first row, which corresponds to the initial plan)
 plt.plot(data.iloc[0], "ro")
 
 # Annotate plot
@@ -102,6 +102,3 @@ ax.set_yticks([0.25, 0.5, 0.75])
 
 plt.show()
 plt.savefig('marginal_box_plot20.png')
-
-
-

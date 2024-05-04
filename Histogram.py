@@ -4,7 +4,6 @@ Created on Sun Apr 21 17:19:56 2024
 
 @author: itsam
 """
-
 from gerrychain import (GeographicPartition, Graph, 
                         updaters, Election)
 import numpy as np
@@ -138,12 +137,19 @@ for part in our_random_walk:
     
     mean_median_difference_ensemble.append(part["mean_median_difference"])
 
+# Calculate the metrics for the original partition
+original_cut_edges = len(initial_partition["cut_edges"])
+original_republican_won = initial_partition["republican_won"]
+original_efficiency_gap = initial_partition["efficiency_gap"]
+original_mean_median_difference = initial_partition["mean_median_difference"]
+
 # Plotting the histograms for cut edges, republican wins, efficiency gap, and mean median difference
 plt.figure()
 plt.hist(cutedge_ensemble, align = 'mid')
 plt.title("Histogram of Cut Edges")
 plt.xlabel("Number of Cut Edges")
 plt.ylabel("Frequency of Districting Plans")
+plt.scatter(original_cut_edges, 100, color='red', marker='o')
 plt.show()
 plt.savefig('histogram_cut_edges20.png')
 
@@ -154,6 +160,7 @@ plt.xticks(np.arange(min(republican_won_ensemble), max(republican_won_ensemble) 
 plt.title("Histogram of Republican-Won districts")
 plt.xlabel("Number of Republican-Won Districts")
 plt.ylabel("Frequency of Districting Plans")
+plt.scatter(original_republican_won, 100, color='red', marker='o')
 plt.show()
 plt.savefig('histogram_republican_won20.png')
 
@@ -162,6 +169,7 @@ plt.hist(efficiency_gap_ensemble, align = 'mid')
 plt.title("Histogram of Efficiency Gap")
 plt.xlabel("Efficiency Gap")
 plt.ylabel("Frequency of Districting Plans")
+plt.scatter(original_efficiency_gap, 100, color='red', marker='o')
 plt.show()
 plt.savefig('histogram_efficiency_gap20.png')
 
@@ -170,5 +178,6 @@ plt.hist(mean_median_difference_ensemble, align = 'mid')
 plt.title("Histogram of Mean Median Difference")
 plt.xlabel("Mean-Median Difference")
 plt.ylabel("Frequency of Districting Plans")
+plt.scatter(original_mean_median_difference, 100, color='red', marker='o')
 plt.show()
 plt.savefig('histogram_mean_median20.png')
