@@ -99,12 +99,12 @@ initial_partition = Partition(
 
 # Define proposal and constraints
 rw_proposal = partial(recom, ## how you choose a next districting plan
-                      pop_col = "ALL_TOT20", ## What data describes population? 
+                      pop_col = "ALL_TOT20", 
                       pop_target = ideal_pop, ## What the target/ideal population is for each district 
                                              
                       epsilon = pop_tolerance,  ## how far from ideal population you can deviate
                                               
-                      node_repeats = 1 ## number of times to repeat bipartition.  Can increase if you get a BipartitionWarning
+                      node_repeats = 1 ## number of times to repeat bipartition.
                       )
 
 # Defining the constraints, ensuring equal population
@@ -113,7 +113,7 @@ population_constraint = constraints.within_percent_of_ideal_population(
     pop_tolerance, 
     pop_key="population")
 
-# Creating the Markov Chain
+# Creating the Markov Chain for 20000 steps
 our_random_walk = MarkovChain(
     proposal = rw_proposal, 
     constraints = [population_constraint],
@@ -160,7 +160,7 @@ plt.xticks(np.arange(min(republican_won_ensemble), max(republican_won_ensemble) 
 plt.title("Histogram of Republican-Won districts")
 plt.xlabel("Number of Republican-Won Districts")
 plt.ylabel("Frequency of Districting Plans")
-plt.scatter(original_republican_won, 100, color='red', marker='o')
+plt.scatter(original_republican_won, 100, color='red', marker='o') # Draw a red dot for the initial plan
 plt.show()
 plt.savefig('histogram_republican_won20.png')
 

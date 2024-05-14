@@ -17,7 +17,7 @@ import geopandas as gpd
 import csv
 import os
 import datetime  #For keeping track of runtime
-import tqdm # for progress bar
+import tqdm #For progress bar
 
 beginrun = datetime.datetime.now()
 print ("\nBegin date and time : ", beginrun.strftime("%Y-%m-%d %H:%M:%S"))
@@ -38,6 +38,7 @@ graph = Graph.from_geodataframe(gdf)
 # Setting up the election updaters
 elections = [
     Election("PRES20", {"Republican": "PRES20R", "Democratic": "PRES20D"}),
+    Election("PRES16", {"Republican": "PRES16R", "Democratic": "PRES16D"})
 ]
 
 my_updaters = {"population": updaters.Tally("ALL_TOT20", alias="population")}
@@ -56,7 +57,8 @@ proposal = partial(recom,
                    epsilon=0.02,
                    node_repeats=2
                   )
-# Constraints
+
+# Determining constraints
 compactness_bound = constraints.UpperBound(
     lambda p: len(p["cut_edges"]),
     2*len(initial_partition["cut_edges"])
@@ -64,7 +66,7 @@ compactness_bound = constraints.UpperBound(
 
 pop_constraint = constraints.within_percent_of_ideal_population(initial_partition, 0.02)
 
-# Running a Markov Chain
+# Running a Markov Chain with the proper constraints
 chain = MarkovChain(
     proposal=proposal,
     constraints=[
@@ -76,7 +78,7 @@ chain = MarkovChain(
     total_steps=total_steps_in_run
     )
 
-# Creating the Box Plot
+# Creating the Box Plot for the 2020 election
 data = pd.DataFrame(
     sorted(partition["PRES20"].percents("Republican"))
     for partition in chain.with_progress_bar()
@@ -90,10 +92,11 @@ ax.axhline(0.5, color="#cccccc")
 # Draw boxplot
 data.boxplot(ax=ax, positions=range(len(data.columns)))
 
-# Draw initial plan's Democratic vote %s (.iloc[0] gives the first row, which corresponds to the initial plan)
+
+# Draw initial plan's Republican vote %s (.iloc[0] gives the first row, which corresponds to the initial plan)
 plt.plot(data.iloc[0], "ro")
 
-# Annotate plot
+# Edit and label the plot
 ax.set_title("Comparing the 2020 plan to an ensemble")
 ax.set_ylabel("Republican vote % (Presidnetial 2020)")
 ax.set_xlabel("Sorted districts")
@@ -102,3 +105,31 @@ ax.set_yticks([0.25, 0.5, 0.75])
 
 plt.show()
 plt.savefig('marginal_box_plot20.png')
+
+# Creating the Box Plot for the 2016 election
+data_2016 = pd.DataFrame(
+    sorted(partition["PRES16"].percents("Republican"))
+    for partition in chain.with_progress_bar()
+)
+
+fig, ax = plt.subplots(figsize=(8, 6))
+
+# Draw 50% line
+ax.axhline(0.5, color="#cccccc")
+
+# Draw boxplot
+data_2016.boxplot(ax=ax, positions=range(len(data_2016.columns)))
+
+# Draw initial plan's Republican vote %s (.iloc[0] gives the first row, which corresponds to the initial plan)
+plt.plot(data_2016.iloc[0], "ro")
+
+# Edit and label the plot
+ax.set_title("Comparing the 2016 plan to an ensemble")
+ax.set_ylabel("Republican vote % (Presidential 2016)")
+ax.set_xlabel("Sorted districts")
+ax.set_ylim(0.25, 0.75)
+ax.set_yticks([0.25, 0.5, 0.75])
+
+plt.show()
+plt.savefig('marginal_box_plot16.png')
+
